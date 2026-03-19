@@ -1,0 +1,64 @@
+database:
+
+-- Tạo cơ sở dữ liệu và sử dụng nó
+CREATE DATABASE IF NOT EXISTS my_store;
+USE my_store;
+-- Tạo bảng danh mục sản phẩm
+CREATE TABLE IF NOT EXISTS category (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+description TEXT
+);
+-- Tạo bảng sản phẩm
+CREATE TABLE IF NOT EXISTS product (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+description TEXT,
+price DECIMAL(10,2) NOT NULL,
+image VARCHAR(255) DEFAULT NULL,
+category_id INT,
+FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE
+);
+-- SQL để tạo bảng orders
+CREATE TABLE orders (
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+phone VARCHAR(20) NOT NULL,
+address TEXT NOT NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- SQL để tạo bảng order_details
+CREATE TABLE order_details (
+id INT AUTO_INCREMENT PRIMARY KEY,
+order_id INT NOT NULL,
+product_id INT NOT NULL,
+quantity INT NOT NULL,
+price DECIMAL(10, 2) NOT NULL,
+FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+-- SQL Script để tạo bảng account
+USE `my_store`;
+CREATE TABLE account (
+id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(255) NOT NULL UNIQUE,
+fullname VARCHAR(255) NOT NULL,
+password VARCHAR(255) NOT NULL,
+role ENUM('admin', 'user') DEFAULT 'user'
+);
+-- Chèn dữ liệu vào bảng category
+INSERT INTO category (name, description) VALUES
+('Điện thoại', 'Danh mục các loại điện thoại'),
+('Laptop', 'Danh mục các loại laptop'),
+('Máy tính bảng', 'Danh mục các loại máy tính bảng'),
+('Phụ kiện', 'Danh mục phụ kiện điện tử'),
+('Thiết bị âm thanh', 'Danh mục loa, tai nghe, micro');
+-- Chèn dữ liệu vào bảng product
+INSERT INTO product (name, description, price, image, category_id) VALUES
+('iPhone 15', 'Điện thoại Apple iPhone 15 128GB', 22990000, 'iphone15.jpg', 1),
+('Samsung Galaxy S23', 'Điện thoại Samsung Galaxy S23 256GB', 19990000, 'galaxy-s23.jpg', 1),
+('Xiaomi Redmi Note 13', 'Điện thoại Xiaomi Redmi Note 13 8GB/256GB', 6990000, 'redmi-note-13.jpg', 1),
+('MacBook Air M2', 'Laptop Apple MacBook Air chip M2 13 inch', 28990000, 'macbook-air-m2.jpg', 2),
+('Dell XPS 13', 'Laptop Dell XPS 13 màn hình 13.4 inch', 31990000, 'dell-xps13.jpg', 2),
+('iPad Air 5', 'Máy tính bảng Apple iPad Air 5 64GB', 16990000, 'ipad-air5.jpg', 3),
+('Logitech MX Master 3', 'Chuột không dây Logitech MX Master 3', 2490000, 'mx-master-3.jpg', 4),
+('Sony WH-1000XM5', 'Tai nghe chống ồn Sony WH-1000XM5', 8990000, 'sony-xm5.jpg', 4);
