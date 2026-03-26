@@ -15,7 +15,7 @@
         padding: 40px 30px;
         background: #fff;
         border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
         border: 1px solid #e0e0e0;
     }
 
@@ -38,17 +38,19 @@
         color: #333;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         border-radius: 12px;
         border: 1px solid #ccc;
         padding: 10px 15px;
         transition: 0.3s;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus,
+    .form-select:focus {
         outline: none;
         border-color: #0071e3;
-        box-shadow: 0 0 8px rgba(0,113,227,0.2);
+        box-shadow: 0 0 8px rgba(0, 113, 227, 0.2);
     }
 
     .image-preview-container {
@@ -108,13 +110,17 @@
     }
 
     @media (max-width: 768px) {
-        .row > .col-md-7, .row > .col-md-5 {
+
+        .row>.col-md-7,
+        .row>.col-md-5 {
             flex: 0 0 100%;
             max-width: 100%;
         }
+
         .image-preview-container {
             margin-top: 20px;
         }
+
         .d-flex.justify-content-between {
             flex-direction: column;
             gap: 10px;
@@ -156,8 +162,8 @@
                 <div class="mb-3">
                     <label class="form-label">Mô tả</label>
                     <textarea name="description" class="form-control" rows="4" required><?php
-                    echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8');
-                    ?></textarea>
+                                                                                        echo htmlspecialchars($product->description, ENT_QUOTES, 'UTF-8');
+                                                                                        ?></textarea>
                 </div>
 
                 <div class="row">
@@ -221,7 +227,7 @@
 <script>
     function previewImage(event) {
         const reader = new FileReader();
-        reader.onload = function () {
+        reader.onload = function() {
             const img = document.getElementById('preview');
             img.src = reader.result;
             img.style.display = "block";
@@ -231,3 +237,55 @@
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // const urlParams = new URLSearchParams(window.location.search);
+        const productId = <?= $editId ?>;
+
+        fetch(`/webbanhang/api/product/${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('id').value = data.id;
+                document.getElementById('name').value = data.name;
+                document.getElementById('description').value = data.description;
+                document.getElementById('price').value = data.price;
+                document.getElementById('category_id').value = data.category_id;
+            });
+        fetch('/webbanhang/api/category')
+            .then(response => response.json())
+            .then(data => {
+                const categorySelect = document.getElementById('category_id');
+                data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            });
+        document.getElementById('edit-product-form').addEventListener('submit',
+            function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const jsonData = {};
+                formData.forEach((value, key) => {
+                    jsonData[key] = value;
+                });
+                fetch(`/webbanhang/api/product/${jsonData.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jsonData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'Product updated successfully') {
+                            location.href = '/webbanhang/Product';
+                        } else {
+                            alert('Cập nhật sản phẩm thất bại');
+                        }
+                    });
+            });
+    });
+</script>

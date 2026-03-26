@@ -18,7 +18,7 @@
     .card-minimal {
         border-radius: 20px;
         border: 1px solid #e0e0e0;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
     }
 
     .card-header {
@@ -39,16 +39,20 @@
         font-weight: 500;
     }
 
-    .form-control, .form-select, textarea {
+    .form-control,
+    .form-select,
+    textarea {
         border-radius: 12px;
         border: 1px solid #ccc;
         transition: 0.3s;
     }
 
-    .form-control:focus, .form-select:focus, textarea:focus {
+    .form-control:focus,
+    .form-select:focus,
+    textarea:focus {
         outline: none;
         border-color: #0071e3;
-        box-shadow: 0 0 8px rgba(0,113,227,0.3);
+        box-shadow: 0 0 8px rgba(0, 113, 227, 0.3);
     }
 
     .btn-apple {
@@ -116,6 +120,7 @@
             flex-direction: column;
             gap: 10px;
         }
+
         .preview-box {
             margin-top: 20px;
         }
@@ -218,15 +223,62 @@
 </div>
 
 <script>
-function previewImage(event) {
-    const reader = new FileReader();
-    reader.onload = function() {
-        const img = document.getElementById('preview');
-        img.src = reader.result;
-        img.style.display = "block";
+    function previewImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const img = document.getElementById('preview');
+            img.src = reader.result;
+            img.style.display = "block";
+        }
+        reader.readAsDataURL(event.target.files[0]);
     }
-    reader.readAsDataURL(event.target.files[0]);
-}
 </script>
 
 <?php include 'app/views/shares/footer.php'; ?>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/webbanhang/api/category')
+            .then(response => response.json())
+            .then(data => {
+                const categorySelect = document.getElementById('category_id');
+                data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    categorySelect.appendChild(option);
+                });
+            });
+        document.getElementById('add-product-form').addEventListener('submit',
+            function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                const jsonData = {};
+                formData.forEach((value, key) => {
+                    jsonData[key] = value;
+                });
+                fetch('/webbanhang/api/product', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(jsonData)
+                    })
+                    .then(response => response.json())
+                    .then(text => {
+                        console.log('Raw response:', text); // Log the raw response text
+                        try {
+                            const data = text;
+                            if (data.message === 'Product created successfully') {
+                                location.href = '/webbanhang/Product';
+                            } else {
+                                alert('Thêm sản phẩm thất bại');
+                            }
+                        } catch (error) {
+                            console.error('Error parsing JSON:', error);
+                            alert('Lỗi: Không thể phân tích JSON từ phản hồi của máy chủ.');
+                        }
+                    });
+            });
+    });
+</script>
